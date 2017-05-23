@@ -1,0 +1,2 @@
+# Struktury_danych_i_zlozonosc_obliczeniowa_Projekt_3
+Implementacja i analiza efektywności algorytmów optymalnych o pseudo-wielomianowej złożoności obliczeniowej dla wybranych problemów kombinatorycznych.
