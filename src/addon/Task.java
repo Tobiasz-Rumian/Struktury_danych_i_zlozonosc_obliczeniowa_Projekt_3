@@ -2,7 +2,9 @@ package addon;
 
 import algorithm.Knapsack;
 import algorithm.Node;
+import algorithm.Salesman;
 import enums.Algorithm;
+import structures.AdjacencyMatrix;
 import view.View;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ public class Task {
     private enums.Task typeOfTask;
     private ArrayList<Node> knapsackList;
     private int knapsackSize;
+    private AdjacencyMatrix adjacencyMatrix;
     public Task(enums.Task typeOfTask) {
         this.typeOfTask = typeOfTask;
     }
@@ -22,6 +25,10 @@ public class Task {
     public void setKnapsackListAndSize(ArrayList<Node> knapsackList, int knapsackSize) {
         this.knapsackList = knapsackList;
         this.knapsackSize = knapsackSize;
+    }
+
+    public void setAdjacencyMatrix(AdjacencyMatrix adjacencyMatrix) {
+        this.adjacencyMatrix = adjacencyMatrix;
     }
 
     public enums.Task getTypeOfTask() {
@@ -39,8 +46,10 @@ public class Task {
             case KNAPSACK:
                 algorithms.add(Algorithm.BRUTEFORCE);
                 algorithms.add(Algorithm.GREEDY);
+                algorithms.add(Algorithm.DYNAMIC);
                 break;
             case SALESMAN:
+                algorithms.add(Algorithm.BRUTEFORCE);
                 break;
         }
         return algorithms;
@@ -67,13 +76,19 @@ public class Task {
             case KNAPSACK:
                 Knapsack knapsack = new Knapsack(knapsackList,knapsackSize);
                 switch (algorithm) {
-                    case BRUTEFORCE:return knapsack.bruteForce();
+                    case BRUTEFORCE:return knapsack.bruteForce(1000);
                     case GREEDY:
                         if(View.select("Sortuj kopiec po wartości?(0-nie, 1-tak)",0,1)==0)return knapsack.greedy(false);
                         return knapsack.greedy(true);
+                    case DYNAMIC:
+                        return knapsack.dynamic();
                 }
                 break;
             case SALESMAN:
+                Salesman salesman = new Salesman(adjacencyMatrix);
+                switch (algorithm){
+                    case BRUTEFORCE:return salesman.bruteForce(1000);
+                }
                 break;
         }
 
