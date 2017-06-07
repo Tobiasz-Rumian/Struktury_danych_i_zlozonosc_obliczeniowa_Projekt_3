@@ -8,7 +8,7 @@ import algorithm.Node;
  *
  * @author Tobiasz Rumian.
  */
-public class BinaryHeap{
+public class BinaryHeapForNodes {
     private int heapSize = 0; //przechowuje informacje o wielkości kopca
     private Node[] heapTable ; //tablica przechowująca kopiec
     private boolean compareByValue;
@@ -21,7 +21,7 @@ public class BinaryHeap{
     węzeł k jest liściem, jeśli 2k + 2 > n
      */
 
-    public BinaryHeap(int size,boolean compareByValue){
+    public BinaryHeapForNodes(int size, boolean compareByValue){
         heapTable = new Node[size];
         this.compareByValue=compareByValue;
     }

@@ -1,6 +1,11 @@
 package algorithm;
 
 import structures.AdjacencyMatrix;
+import structures.BinaryHeapForPath;
+import structures.PathElement;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Tobiasz Rumian on 04.06.2017.
@@ -43,7 +48,7 @@ public class Salesman {
     //----------------------------------------------------
     private boolean TSP(int v,long seconds,long tStart) {
         int u;
-        if((System.currentTimeMillis() - tStart / 1000.0)>=seconds)return false;
+        if((long)((double)(System.currentTimeMillis() - tStart) / 1000.0)>=seconds)return false;
         Sh[shptr++] = v;                // zapamiętujemy na stosie bieżący wierzchołek
 
         if (shptr < graphOrder)                   // jeśli brak ścieżki Hamiltona, to jej szukamy
@@ -72,4 +77,40 @@ public class Salesman {
         shptr--;                        // Usuwamy bieżący wierzchołek ze ścieżki
         return true;
     }
+
+    public String greedy() {
+        List<PathElement> pathElements = new LinkedList<>();
+        int currentVertice=0;
+        visited = new boolean[graphOrder];
+        visited[0]=true;
+        BinaryHeapForPath binaryHeapForPath = new BinaryHeapForPath(graphOrder);
+        for(int j=0;j<graphOrder;j++)
+            if(adjacencyMatrix.getMatrixElement(currentVertice,j)!=Integer.MIN_VALUE&&!visited[j]&&currentVertice!=j)
+                binaryHeapForPath.push(
+                        new PathElement(currentVertice,j,adjacencyMatrix.getMatrixElement(currentVertice,j)));
+        PathElement pathElement = binaryHeapForPath.pop();
+        binaryHeapForPath.clear();
+        while (pathElement!=null){
+            pathElements.add(pathElement);
+            currentVertice=pathElement.getEndVertex();
+            visited[pathElement.getEndVertex()]=true;
+            for(int j=0;j<graphOrder;j++)
+                if(adjacencyMatrix.getMatrixElement(currentVertice,j)!=Integer.MIN_VALUE&&!visited[j])
+                    binaryHeapForPath.push(
+                            new PathElement(currentVertice,j,adjacencyMatrix.getMatrixElement(currentVertice,j)));
+            pathElement = binaryHeapForPath.pop();
+            binaryHeapForPath.clear();
+        }
+        pathElements.add(new PathElement(currentVertice,0,adjacencyMatrix.getMatrixElement(currentVertice,0)));
+        sb.append(0).append(" ");
+        int value=0;
+        for (PathElement p:pathElements) {
+            sb.append(p.getEndVertex()).append(" ");
+            value+=p.getWeight();
+        }
+        sb.append("\n").append(value);
+        return sb.toString();
+    }
+
+
 }

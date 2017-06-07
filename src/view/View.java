@@ -8,6 +8,8 @@ import enums.Task;
 import structures.AdjacencyMatrix;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class View {
                     break;
                 case 2: task = new addon.Task(Task.SALESMAN);
                     break;
-                case 3: //createTests();
+                case 3: createTests();
                     return;
                 case 0: return;
             }
@@ -148,7 +150,7 @@ public class View {
                 for (int j = 0; j < graphOrder; j++) {
                     if (j == graphOrder - 1)
                         adjacencyMatrix.add(i, j, Integer.parseInt((arrayList.get(i).substring(0, arrayList.get(i).length())).trim()));
-                    else{
+                    else {
                         adjacencyMatrix.add(i, j, Integer.parseInt(arrayList.get(i).substring(0, arrayList.get(i).indexOf(" ")).trim()));
                         arrayList.set(i, arrayList.get(i).substring(arrayList.get(i).indexOf(" ") + 1, arrayList.get(i).length()).trim());
                     }
@@ -158,65 +160,76 @@ public class View {
     }
 
 
-    //    /**
-    //     * Funkcja pozwalająca na wykonanie testów na strukturze.
-    //     *
-    //     * @param algorithm  Wykorzystany algorytm.
-    //     * @param graphOrder Ilość wierzchołków w grafie.
-    //     * @param density    Gęstosć grafu.
-    //     * @param matrix     true jeżeli algorytm jest testowany dla macierzy.
-    //     * @return Zwraca czas wykonania algorytmu.
-    //     */
-    //    private BigDecimal test(Algorithm algorithm, int graphOrder, int density, boolean matrix) {
-    //        TimeTracker timeTracker = new TimeTracker();
-    //        addon.Task task;
-    //        Random random = new Random();
-    //        if (algorithm == Algorithm.PRIM || algorithm == Algorithm.KRUSKAL) task = new addon.Task(Task.MST);
-    //        else task = new addon.Task(Task.NSWG);
-    //        task.generateRandomGraph(graphOrder, density);
-    //        if (task.getTypeOfTask() == Task.NSWG) task.setStartVertex(random.nextInt(graphOrder - 1));
-    //        timeTracker.start();
-    //        task.testAlgorithm(algorithm, matrix);
-    //        return timeTracker.getElapsedTime();
-    //
-    //    }
-    //
-    //    /**
-    //     * Funkcja pozwalająca na wykonanie pełnych testów.
-    //     */
-    //    private void createTests() {
-    //        final int howManyRepeats = 100;
-    //        int[] graphOrders = {10, 30, 50, 70, 100};
-    //        int[] densitys = {25, 50, 75, 99};
-    //        boolean[] matrixes = {true, false};
-    //        String label;
-    //        Algorithm[] algorithms = {Algorithm.PRIM, Algorithm.KRUSKAL, Algorithm.DIJKSTR, Algorithm.BELLMAN_FORD};//Algorithm.PRIM, Algorithm.KRUSKAL, Algorithm.DIJKSTR, Algorithm.BELLMAN_FORD
-    //        BigDecimal time;
-    //
-    //        for (Algorithm algorithm : algorithms) {
-    //            for (int graphOrder : graphOrders) {
-    //                for (int density : densitys) {
-    //                    for (boolean matrix : matrixes) {
-    //                        time = new BigDecimal(0).setScale(0, RoundingMode.CEILING);
-    //                        for (int i = 0; i < howManyRepeats; i++) {
-    //                            time = time.add(test(algorithm, graphOrder, density, matrix));
-    //                            System.gc();
-    //                            showProgress(i, howManyRepeats, time.longValue(), "     " +
-    //                                    algorithm.toString() + "  " + density + "  " +
-    //                                    graphOrder + "  " + matrix + "  ");
-    //                        }
-    //                        time = time.divide(BigDecimal.valueOf(howManyRepeats), RoundingMode.UP);
-    //                        label = algorithm.toString() + "\t" + graphOrder + "\t" + density + "\t" + matrix;
-    //                        message(time.toString(), false);
-    //                        results.add(label, time.longValue());
-    //                    }
-    //                }
-    //            }
-    //            results.save();
-    //        }
-    //        results.save();
-    //        results.clear();
-    //    }
+    /**
+     * Funkcja pozwalająca na wykonanie pełnych testów.
+     */
+    private void createTests() {
+        final int howManyRepeats = 100;
+        int[] graphOrders = {3, 5, 10, 15, 20};
+        int[] graphOrders1 = {5,10,20};
+        int[] backpackSize = {5, 10, 20};
+        int[] nodes = {3, 5, 7, 10, 12};
+        String label;
+        Algorithm[] algorithmsSalesman = {Algorithm.BRUTEFORCE, Algorithm.GREEDY};
+        Algorithm[] algorithmsKnapsack = {Algorithm.BRUTEFORCE, Algorithm.DYNAMIC};
+        BigDecimal time;
+        addon.Task task = new addon.Task(Task.KNAPSACK);
+        for (Algorithm algorithm : algorithmsKnapsack) {
+            for (int node : nodes) {
+                ArrayList<Node> arrayList = task.generateKnapsack(node);
+                for (int size : backpackSize) {
+                    time = new BigDecimal(0).setScale(0, RoundingMode.CEILING);
+                    for (int i = 0; i < howManyRepeats; i++) {
+                        time = time.add(task.testAlgorithm(algorithm, arrayList, size));
+                        showProgress(i, howManyRepeats, time.longValue(), "     " +
+                                algorithm.toString() + "  " + node + "  " + size + " " + "Knapsack");
+                    }
+                    time = time.divide(BigDecimal.valueOf(howManyRepeats), RoundingMode.UP);
+                    label = "KNAPSACK\t" + algorithm.toString() + "\t" + node + "\t" + size;
+                    message(time.toString(), false);
+                    results.add(label, time.longValue());
+                }
+            }
+            results.save();
+        }
+        task = new addon.Task(Task.SALESMAN);
+        for (Algorithm algorithm : algorithmsSalesman) {
+            if(algorithm==Algorithm.BRUTEFORCE){
+                for (int graphOrder : graphOrders1) {
+                    AdjacencyMatrix adjacencyMatrix = task.generateRandomGraph(graphOrder);
+                    time = new BigDecimal(0).setScale(0, RoundingMode.CEILING);
+                    for (int i = 0; i < howManyRepeats; i++) {
+                        time = time.add(task.testAlgorithm(algorithm, adjacencyMatrix));
+                        showProgress(i, howManyRepeats, time.longValue(), "     " +
+                                algorithm.toString() + "  " + graphOrder + "  " + "Salesman");
+                    }
+                    time = time.divide(BigDecimal.valueOf(howManyRepeats), RoundingMode.UP);
+                    label = "SALESMAN\t" + algorithm.toString() + "\t" + graphOrder;
+                    message(time.toString(), false);
+                    results.add(label, time.longValue());
+                }
+                results.save();
+            }else{
+                for (int graphOrder : graphOrders) {
+                    AdjacencyMatrix adjacencyMatrix = task.generateRandomGraph(graphOrder);
+                    time = new BigDecimal(0).setScale(0, RoundingMode.CEILING);
+                    for (int i = 0; i < howManyRepeats; i++) {
+                        time = time.add(task.testAlgorithm(algorithm, adjacencyMatrix));
+                        showProgress(i, howManyRepeats, time.longValue(), "     " +
+                                algorithm.toString() + "  " + graphOrder + "  " + "Salesman");
+                    }
+                    time = time.divide(BigDecimal.valueOf(howManyRepeats), RoundingMode.UP);
+                    label = "SALESMAN\t" + algorithm.toString() + "\t" + graphOrder;
+                    message(time.toString(), false);
+                    results.add(label, time.longValue());
+                }
+                results.save();
+            }
+
+        }
+        results.save();
+        results.clear();
+    }
 
     /**
      * Funkcja pozwalająca na wybór, przez użytkownika, algorytmu.

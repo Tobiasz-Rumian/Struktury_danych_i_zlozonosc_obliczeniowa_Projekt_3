@@ -1,6 +1,6 @@
 package algorithm;
 
-import structures.BinaryHeap;
+import structures.BinaryHeapForNodes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,7 @@ public class Knapsack {
         for (int i = 1; i < list.size(); i++) {
             nodes = new Node[i];
             combinationUtil(nodes, 0, 0, i);
-            if((System.currentTimeMillis() - tStart / 1000.0)>=seconds)return "Przekroczono czas oczekiwania!";
+            if((long)((double)(System.currentTimeMillis() - tStart) / 1000.0)>=seconds)return "Przekroczono czas oczekiwania!";
         }
         if (best == null) return "";
         for (Node n : best) {
@@ -63,17 +63,17 @@ public class Knapsack {
     }
 
     public String greedy(boolean compareByValue) {
-        BinaryHeap binaryHeap = new BinaryHeap(list.size(),compareByValue);
-        for (Node n:list) binaryHeap.push(n);
-        System.out.print(binaryHeap.read());
-        Node node = binaryHeap.pop();
+        BinaryHeapForNodes binaryHeapForNodes = new BinaryHeapForNodes(list.size(),compareByValue);
+        for (Node n:list) binaryHeapForNodes.push(n);
+        System.out.print(binaryHeapForNodes.read());
+        Node node = binaryHeapForNodes.pop();
         while(node!=null){
             if(node.getSize()+size<backpackSize){
                 best.add(node);
                 size+=node.getSize();
                 bestValue+=node.getValue();
             }
-            node = binaryHeap.pop();
+            node = binaryHeapForNodes.pop();
         }
         if (best == null) return "";
         for (Node n : best) {
@@ -87,29 +87,29 @@ public class Knapsack {
         return sb.toString();
     }
 
-    public String dynamic()
-    {
-        int i, w,k;
-        int K[][] = new int[list.size()+1][backpackSize+1];
+    public String dynamic() {
+        int i, w, k;
+        int K[][] = new int[list.size() + 1][backpackSize + 1];
         for (i = 0; i <= list.size(); i++) {
             for (w = 0; w <= backpackSize; w++) {
-                if (i==0 || w==0) K[i][w] = 0;
-                else if (list.get(i-1).getSize() <= w) K[i][w]=Integer.max(list.get(i-1).getValue() + K[i-1][w-list.get(i-1).getSize()], K[i-1][w]);
-                else K[i][w] = K[i-1][w];
+                if (i == 0 || w == 0) K[i][w] = 0;
+                else if (list.get(i - 1).getSize() <= w)
+                    K[i][w] = Integer.max(list.get(i - 1).getValue() + K[i - 1][w - list.get(i - 1).getSize()], K[i - 1][w]);
+                else K[i][w] = K[i - 1][w];
             }
         }
         //Pobieranie elementów dodanych do plecaka przez cofanie
-        i=list.size();
-        k=backpackSize;
-        while(i>0&&k>0){
-            if(K[i][k]!=K[i-1][k]){
-                best.add(list.get(i-1));
-                k = k-list.get(i-1).getSize();
+        i = list.size();
+        k = backpackSize;
+        while (i > 0 && k > 0) {
+            if (K[i][k] != K[i - 1][k]) {
+                best.add(list.get(i - 1));
+                k = k - list.get(i - 1).getSize();
             }
             i--;
         }
-        for (Node n : best) size+=n.getSize();
-        bestValue=K[list.size()][backpackSize];
+        for (Node n : best) size += n.getSize();
+        bestValue = K[list.size()][backpackSize];
         //Wypisywanie elementów
         for (Node n : best) {
             sb.
